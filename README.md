@@ -1,4 +1,4 @@
 # Compiler
 
-Para contribuir, crie a sua branch e trabalhe nela. Não dê `git push` na main!
+Para contribuir, trabalhe na branch com o seu nome! Não dê `git push` na main!
 
