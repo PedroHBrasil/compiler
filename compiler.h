@@ -7,6 +7,18 @@
 
 // LAB 2 STARTS HERE
 
+#define NUMERIC_CASE \
+	case '0':	\
+	case '1':	\
+	case '2':	\
+	case '3':	\
+	case '4':	\
+	case '5':	\
+	case '6':	\
+	case '7':	\
+	case '8':	\
+	case '9'
+
 struct pos {
 	int line;
 	int col;
@@ -32,6 +44,8 @@ enum {
 struct token {
 	int type;
 	int flags;
+
+	struct pos pos;  // Identificar onde o token está no arquivo.
 
 	union {
 		char cval;
