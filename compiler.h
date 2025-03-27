@@ -45,7 +45,7 @@ struct token {
 	int type;
 	int flags;
 
-	struct pos pos;  // Identificar onde o token está no arquivo.
+	struct pos pos;
 
 	union {
 		char cval;
