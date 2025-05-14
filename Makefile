@@ -22,6 +22,10 @@ all: ${OBJECTS}
 ./build/helpers/vector.o: ./helpers/vector.c
 	gcc ./helpers/vector.c ${INCLUDES} -o ./build/helpers/vector.o -g -c
 
+.build/test.o: ./test.c
+	gcc ./test.c ${INCLUDES} -o ./build/test.o -g -c
+
+
 clean:
 	rm ./main
 	rm -rf ${OBJECTS}

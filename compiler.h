@@ -1,9 +1,105 @@
 #ifndef COMPILER_H
 #define COMPILER_H
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+
+
+#define NUMERIC_CASE \
+	case '0':	\
+	case '1':	\
+	case '2':	\
+	case '3':	\
+	case '4':	\
+	case '5':	\
+	case '6':	\
+	case '7':	\
+	case '8':	\
+	case '9' 
+
+#define OPERATOR_CASE \
+    case '+': \
+    case '-': \
+    case '*': \
+    case '%': \
+    case '!': \
+    case '=': \
+    case '>': \
+    case '<': \
+    case '~': \
+    case '|': \
+    case '&': \
+    case '(': \
+    case '[': \
+    case ',': \
+	case '.': \
+    case '?'
+	// case 'a': \
+	// case 'b': \
+	// case 'c': \
+	// case 'd': \
+	// case 'e': \
+	// case 'f': \
+	// case 'g': \
+	// case 'h': \
+	// case 'i': \
+	// case 'j': \
+	// case 'k': \
+	// case 'l': \
+	// case 'm': \
+	// case 'n': \
+	// case 'o': \
+	// case 'p': \
+	// case 'q': \
+	// case 'r': \
+	// case 's': \
+	// case 't': \
+	// case 'u': \
+	// case 'v': \
+	// case 'w': \
+	// case 'x': \
+	// case 'y': \
+	// case 'z': \
+	// case 'A': \
+	// case 'B': \
+	// case 'C': \
+	// case 'D': \
+	// case 'E': \
+	// case 'F': \
+	// case 'G': \
+	// case 'H': \
+	// case 'I': \
+	// case 'J': \
+	// case 'K': \
+	// case 'L': \
+	// case 'M': \
+	// case 'N': \
+	// case 'O': \
+	// case 'P': \
+	// case 'Q': \
+	// case 'R': \
+	// case 'S': \
+	// case 'T': \
+	// case 'U': \
+	// case 'V': \
+	// case 'W': \
+	// case 'X': \
+	// case 'Y': \
+	// case 'Z'
+
+
+#define SYMBOL_CASE \
+    case '{': \
+    case '}': \
+    case ':': \
+    case ';': \
+    case '#': \
+    case ')': \
+    case ']'
+
+#define NEWLINE_CASE \
+	case '\n'
+
 
 // LAB 2 STARTS HERE
 
@@ -30,7 +126,7 @@ enum {
 	LEXICAL_ANALYSIS_INPUT_ERROR
 };
 
-enum {
+enum token_type {
 	TOKEN_TYPE_KEYWORD,
 	TOKEN_TYPE_IDENTIFIER,
 	TOKEN_TYPE_OPERATOR,
@@ -45,7 +141,7 @@ struct token {
 	int type;
 	int flags;
 
-	struct pos pos;  // Identificar onde o token está no arquivo.
+	struct pos pos;
 
 	union {
 		char cval;
@@ -109,23 +205,98 @@ enum {
 	COMPILER_FAILED_WITH_ERRORS,
 };
 
-struct compile_process {
-	// Como o arquivo deve ser compilado
-	int flags;
+struct compile_process
+{
+    // Como o arquivo deve ser compilado
+    int flags;
 
-	// LAB2
-	struct pos pos;
+    /* LAB2*/
+    struct pos pos;
 
-	struct compile_process_input_file {
-		FILE* fp;
-		const char* abs_path;
-	} cfile;
+    struct compile_process_imput_file
+    {
+        FILE *fp;
+        const char *abs_path;
+    } cfile;
 
-	FILE* ofile;
+    struct vector *token_vec;
+    struct vector *node_vec;
+    struct vector *node_tree_vec;
+
+    FILE *ofile;
+};
+
+enum
+{
+    NODE_TYPE_EXPRESSION,
+    NODE_TYPE_EXPRESSION_PARENTHESIS,
+    NODE_TYPE_NUMBER,
+    NODE_TYPE_IDENTIFIER,
+    NODE_TYPE_STRING,
+    NODE_TYPE_VARIABLE,
+    NODE_TYPE_VARIABLE_LIST,
+    NODE_TYPE_FUNCTION,
+    NODE_TYPE_BODY,
+    NODE_TYPE_STATEMENT_RETURN,
+    NODE_TYPE_STATEMENT_IF,
+    NODE_TYPE_STATEMENT_ELSE,
+    NODE_TYPE_STATEMENT_WHILE,
+    NODE_TYPE_STATEMENT_DO_WHILE,
+    NODE_TYPE_STATEMENT_FOR,
+    NODE_TYPE_STATEMENT_BREAK,
+    NODE_TYPE_STATEMENT_CONTINUE,
+    NODE_TYPE_STATEMENT_SWITCH,
+    NODE_TYPE_STATEMENT_CASE,
+    NODE_TYPE_STATEMENT_DEFAULT,
+    NODE_TYPE_STATEMENT_GOTO,
+    NODE_TYPE_UNARY,
+    NODE_TYPE_TENARY,
+    NODE_TYPE_LABEL,
+    NODE_TYPE_STRUCT,
+    NODE_TYPE_UNION,
+    NODE_TYPE_BRACKET,
+    NODE_TYPE_CAST,
+    NODE_TYPE_BLANK
+};
+
+enum {
+    PARSE_ALL_OK,
+    PARSE_GENERAL_ERROR
+};
+
+// Cada nó uma parte do inputfile.
+struct node {
+    int type;
+    int flags;
+    struct pos pos;
+
+    struct node_binded {
+        // Ponteiro para o body node.
+        struct node* owner;
+
+        // Ponteiro para a função que o nó está.
+        struct node* funtion;
+    } binded;
+
+    // Estrutura similar ao token
+    union {
+        char cval;
+        const char* sval;
+        unsigned int inum;
+        unsigned long lnum;
+        unsigned long long llnum;
+        void* any;
+    };
 };
 
 int compile_file(const char* filename, const char* out_filename, int flags);
 struct compile_process* compile_process_create(const char* filename, const char* filename_out, int flags);
 
+int compile_error(struct compile_process* compiler, const char* msg, ...);
+int compile_warning(struct compile_process* compiler, const char* msg, ...);
 
 #endif
+
+
+
+/* BEGIN - LAB 3*/
