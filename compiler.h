@@ -18,22 +18,22 @@
 	case '9' 
 
 #define OPERATOR_CASE \
-    case '+': \
-    case '-': \
-    case '*': \
-    case '%': \
-    case '!': \
-    case '=': \
-    case '>': \
-    case '<': \
-    case '~': \
-    case '|': \
-    case '&': \
-    case '(': \
-    case '[': \
-    case ',': \
+	case '+': \
+	case '-': \
+	case '*': \
+	case '%': \
+	case '!': \
+	case '=': \
+	case '>': \
+	case '<': \
+	case '~': \
+	case '|': \
+	case '&': \
+	case '(': \
+	case '[': \
+	case ',': \
 	case '.': \
-    case '?'
+	case '?'
 	// case 'a': \
 	// case 'b': \
 	// case 'c': \
@@ -89,13 +89,13 @@
 
 
 #define SYMBOL_CASE \
-    case '{': \
-    case '}': \
-    case ':': \
-    case ';': \
-    case '#': \
-    case ')': \
-    case ']'
+	case '{': \
+	case '}': \
+	case ':': \
+	case ';': \
+	case '#': \
+	case ')': \
+	case ']'
 
 #define NEWLINE_CASE \
 	case '\n'
@@ -114,6 +114,19 @@
 	case '7':	\
 	case '8':	\
 	case '9'
+
+#define TOTAL_OPERADOR_GROUPS 14
+#define MAX_OPERATORS_IN_GROUP 12
+
+enum {
+    ASSOCIATIVITY_LEFT_TO_RIGTH,
+    ASSOCIATIVITY_RIGHT_TO_LEFT
+};
+
+struct expressionable_op_precedence_group {
+    char* operators[MAX_OPERATORS_IN_GROUP];
+    int associativity;
+};
 
 struct pos {
 	int line;
@@ -207,86 +220,86 @@ enum {
 
 struct compile_process
 {
-    // Como o arquivo deve ser compilado
-    int flags;
+	// Como o arquivo deve ser compilado
+	int flags;
 
-    /* LAB2*/
-    struct pos pos;
+	/* LAB2*/
+	struct pos pos;
 
-    struct compile_process_imput_file
-    {
-        FILE *fp;
-        const char *abs_path;
-    } cfile;
+	struct compile_process_imput_file
+	{
+		FILE *fp;
+		const char *abs_path;
+	} cfile;
 
-    struct vector *token_vec;
-    struct vector *node_vec;
-    struct vector *node_tree_vec;
+	struct vector *token_vec;
+	struct vector *node_vec;
+	struct vector *node_tree_vec;
 
-    FILE *ofile;
+	FILE *ofile;
 };
 
 enum
 {
-    NODE_TYPE_EXPRESSION,
-    NODE_TYPE_EXPRESSION_PARENTHESIS,
-    NODE_TYPE_NUMBER,
-    NODE_TYPE_IDENTIFIER,
-    NODE_TYPE_STRING,
-    NODE_TYPE_VARIABLE,
-    NODE_TYPE_VARIABLE_LIST,
-    NODE_TYPE_FUNCTION,
-    NODE_TYPE_BODY,
-    NODE_TYPE_STATEMENT_RETURN,
-    NODE_TYPE_STATEMENT_IF,
-    NODE_TYPE_STATEMENT_ELSE,
-    NODE_TYPE_STATEMENT_WHILE,
-    NODE_TYPE_STATEMENT_DO_WHILE,
-    NODE_TYPE_STATEMENT_FOR,
-    NODE_TYPE_STATEMENT_BREAK,
-    NODE_TYPE_STATEMENT_CONTINUE,
-    NODE_TYPE_STATEMENT_SWITCH,
-    NODE_TYPE_STATEMENT_CASE,
-    NODE_TYPE_STATEMENT_DEFAULT,
-    NODE_TYPE_STATEMENT_GOTO,
-    NODE_TYPE_UNARY,
-    NODE_TYPE_TENARY,
-    NODE_TYPE_LABEL,
-    NODE_TYPE_STRUCT,
-    NODE_TYPE_UNION,
-    NODE_TYPE_BRACKET,
-    NODE_TYPE_CAST,
-    NODE_TYPE_BLANK
+	NODE_TYPE_EXPRESSION,
+	NODE_TYPE_EXPRESSION_PARENTHESIS,
+	NODE_TYPE_NUMBER,
+	NODE_TYPE_IDENTIFIER,
+	NODE_TYPE_STRING,
+	NODE_TYPE_VARIABLE,
+	NODE_TYPE_VARIABLE_LIST,
+	NODE_TYPE_FUNCTION,
+	NODE_TYPE_BODY,
+	NODE_TYPE_STATEMENT_RETURN,
+	NODE_TYPE_STATEMENT_IF,
+	NODE_TYPE_STATEMENT_ELSE,
+	NODE_TYPE_STATEMENT_WHILE,
+	NODE_TYPE_STATEMENT_DO_WHILE,
+	NODE_TYPE_STATEMENT_FOR,
+	NODE_TYPE_STATEMENT_BREAK,
+	NODE_TYPE_STATEMENT_CONTINUE,
+	NODE_TYPE_STATEMENT_SWITCH,
+	NODE_TYPE_STATEMENT_CASE,
+	NODE_TYPE_STATEMENT_DEFAULT,
+	NODE_TYPE_STATEMENT_GOTO,
+	NODE_TYPE_UNARY,
+	NODE_TYPE_TENARY,
+	NODE_TYPE_LABEL,
+	NODE_TYPE_STRUCT,
+	NODE_TYPE_UNION,
+	NODE_TYPE_BRACKET,
+	NODE_TYPE_CAST,
+	NODE_TYPE_BLANK
 };
 
 enum {
-    PARSE_ALL_OK,
-    PARSE_GENERAL_ERROR
+	PARSE_ALL_OK,
+	PARSE_GENERAL_ERROR
 };
 
 // Cada nó uma parte do inputfile.
 struct node {
-    int type;
-    int flags;
-    struct pos pos;
+	int type;
+	int flags;
+	struct pos pos;
 
-    struct node_binded {
-        // Ponteiro para o body node.
-        struct node* owner;
+	struct node_binded {
+		// Ponteiro para o body node.
+		struct node* owner;
 
-        // Ponteiro para a função que o nó está.
-        struct node* funtion;
-    } binded;
+		// Ponteiro para a função que o nó está.
+		struct node* funtion;
+	} binded;
 
-    // Estrutura similar ao token
-    union {
-        char cval;
-        const char* sval;
-        unsigned int inum;
-        unsigned long lnum;
-        unsigned long long llnum;
-        void* any;
-    };
+	// Estrutura similar ao token
+	union {
+		char cval;
+		const char* sval;
+		unsigned int inum;
+		unsigned long lnum;
+		unsigned long long llnum;
+		void* any;
+	};
 };
 
 int compile_file(const char* filename, const char* out_filename, int flags);
