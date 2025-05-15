@@ -277,6 +277,10 @@ enum {
 	PARSE_GENERAL_ERROR
 };
 
+int parse_next();
+
+int parse(struct compile_process* process);
+
 // Cada nó uma parte do inputfile.
 struct node {
 	int type;

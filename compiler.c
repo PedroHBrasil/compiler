@@ -2,15 +2,11 @@
 #include <stdarg.h>
 #include <stdlib.h>
 
-
-
-
 struct lex_process_functions compiler_lex_functions = {
 	.next_char=compile_process_next_char,
 	.peek_char=compile_process_peek_char,
 	.push_char=compile_process_push_char
 };
-
 
 void compiler_error(struct compile_process* compiler, const char* msg, ...) {
 	va_list args;
@@ -49,9 +45,8 @@ int compile_file(const char* filename, const char* out_filename, int flags) {
 
 	process->token_vec = lex_process->token_vec; /* LAB3: Adicionar*/
 
-    /* AQUI ENTRA O PARSING DO CÓDIGO */
-
-    //  if (parse(process) != PARSE_ALL_OK) return COMPILER_FAILED_WITH_ERRORS; 
+	/* AQUI ENTRA O PARSING DO CÓDIGO */
+	if (parse(process) != PARSE_ALL_OK) return COMPILER_FAILED_WITH_ERRORS; 
 	
 	// AQUI ENTRA A GERAÇÃO DO CÓDIGO
 	
