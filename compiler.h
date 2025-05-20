@@ -3,7 +3,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 
+#define S_EQ(str, str2) \
+	(str && str2 && (strcmp(str, str2) == 0))
 
 #define NUMERIC_CASE \
 	case '0':	\
@@ -281,36 +284,58 @@ int parse_next();
 
 int parse(struct compile_process* process);
 
+int compile_file(const char* filename, const char* out_filename, int flags);
+struct compile_process* compile_process_create(const char* filename, const char* filename_out, int flags);
+
+int compiler_error(struct compile_process* compiler, const char* msg, ...);
+int compiler_warning(struct compile_process* compiler, const char* msg, ...);
+
+enum {
+	NODE_FLAG_INSIDE_EXPRESSION = 0b00000001
+};
+
 // Cada nó uma parte do inputfile.
-struct node {
-	int type;
+struct node {int type;
 	int flags;
 	struct pos pos;
-
 	struct node_binded {
 		// Ponteiro para o body node.
 		struct node* owner;
-
-		// Ponteiro para a função que o nó está.
+		// Ponteiro para a funcao que o node esta.
 		struct node* funtion;
 	} binded;
-
 	// Estrutura similar ao token
-	union {
-		char cval;
-		const char* sval;
+	union { char cval;
+		const char *sval;
 		unsigned int inum;
 		unsigned long lnum;
 		unsigned long long llnum;
 		void* any;
 	};
+	union { struct exp {
+		struct node* left;
+		struct node* right;
+		const char* op;
+	} exp;
+	};
 };
 
-int compile_file(const char* filename, const char* out_filename, int flags);
-struct compile_process* compile_process_create(const char* filename, const char* filename_out, int flags);
-
-int compile_error(struct compile_process* compiler, const char* msg, ...);
-int compile_warning(struct compile_process* compiler, const char* msg, ...);
+/* FUNCOES DO ARQUIVO PARSER.C */
+int parse(struct compile_process* process);
+/* FUNCOES DO ARQUIVO TOKEN.C */
+bool token_is_keyword(struct token* token, char* value);
+bool token_is_symbol(struct token* token, const char value);
+bool discart_token(struct token* token);
+/* FUNCOES DO ARQUIVO NODE.C */
+void node_set_vector(struct vector* vec, struct vector* root_vec);
+void node_push(struct node* node);
+struct node* node_peek_or_null();
+struct node* node_peek();
+struct node* node_pop();
+struct node* node_peek_expressionable_or_null();
+bool node_is_expressionable(struct node* node);
+void make_exp_node(struct node* node_left, struct node* node_right, const char* op);
+struct node* node_create(struct node* _node);
 
 #endif
 

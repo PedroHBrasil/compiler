@@ -7,8 +7,6 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-#define S_EQ(a , b) (strcmp((a), (b)) == 0)
-
 #define LEX_GETC_IF(buffer, c, exp) \
 	for (c = peekc(); exp; c = peekc()) { \
 		buffer_write(buffer, c); \
@@ -73,11 +71,6 @@ bool is_keyword(const char* str){
 		S_EQ(str, "__ignore_typecheck") ||
 		S_EQ(str, "extern") ||
 		S_EQ(str, "restrict");
-}
-
-bool token_is_keyword(struct token *token, char *kw)
-{
-    return S_EQ(token->sval, kw);
 }
 
 static struct pos lex_file_position() {
