@@ -189,19 +189,6 @@ int parse_next(){
 	return 0;
 }
 
-int parse(struct compile_process* process) { /*LAB3: Adicionar o prototipo no compiler.h */
-	current_process = process;
-	parser_last_token = NULL;
-	struct node* node = NULL;
-	node_set_vector(process->node_vec, process->node_tree_vec);
-	vector_set_peek_pointer(process->token_vec, 0);
-	while (parse_next() == 0) {
-		node = node_peek();
-		vector_push(process->node_tree_vec, &node);
-	}
-	return PARSE_ALL_OK;
-}
-
 static int parser_get_precedence_for_operator(const char* op, struct expressionable_op_precedence_group** group_out) {
 	*group_out = NULL;
 	for (int i = 0; i < TOTAL_OPERADOR_GROUPS; i++) {
@@ -231,3 +218,22 @@ static bool parser_left_op_has_priority(const char* op_left, const char* op_righ
 
 	return precedence_left <= precedence_right;
 }
+
+int parse(struct compile_process* process) { /*LAB3: Adicionar o prototipo no compiler.h */
+	printf("parsing\n");
+	current_process = process;
+	parser_last_token = NULL;
+	struct node* node = NULL;
+	node_set_vector(process->node_vec, process->node_tree_vec);
+	vector_set_peek_pointer(process->token_vec, 0);
+	printf("parsing next\n");
+	while (parse_next() == 0) {
+		printf("parsed\n");
+		node = node_peek();
+		printf("peeked node\n");
+		vector_push(process->node_tree_vec, &node);
+		printf("pushed to node tree\n");
+	}
+	return PARSE_ALL_OK;
+}
+
