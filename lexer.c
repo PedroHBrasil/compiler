@@ -73,6 +73,11 @@ bool is_keyword(const char* str){
 		S_EQ(str, "restrict");
 }
 
+bool token_is_keyword(struct token *token, char *kw)
+{
+    return S_EQ(token->sval, kw);
+}
+
 static struct pos lex_file_position() {
 	return lex_process->pos;
 }

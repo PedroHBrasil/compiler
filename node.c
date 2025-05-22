@@ -64,6 +64,7 @@ struct node* node_create(struct node* _node) {
 	struct node* node = malloc(sizeof(struct node));
 	memcpy(node, _node, sizeof(struct node));
 	node_push(node);
+
 	return node;
 }
 

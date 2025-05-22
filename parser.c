@@ -27,6 +27,7 @@ struct history* history_down(struct history* history, int flags) {
 	struct history* new_history = calloc(1, sizeof(struct history));
 	memcpy(new_history, history, sizeof(struct history));
 	new_history->flags = flags;
+
 	return new_history;
 }
 
@@ -34,6 +35,7 @@ static void parser_ignore_nl_or_comment(struct token* token) {
 	while (token && discart_token(token) ) {
 		// Pula o token que deve ser descartado no vetor.
 		vector_peek(current_process->token_vec);
+
 		// Pega o proximo token para ver se ele tambem sera descartado.
 		token = vector_peek_no_increment(current_process->token_vec);
 	}
@@ -44,18 +46,21 @@ static struct token* token_next() {
 	parser_ignore_nl_or_comment(next_token);
 	current_process->pos = next_token->pos; // Atualiza a posicao do arquivo de compilacao.
 	parser_last_token = next_token;
+
 	return vector_peek(current_process->token_vec);
 }
 
 static struct token* token_peek_next() {
 	struct token* next_token = vector_peek_no_increment(current_process->token_vec);
 	parser_ignore_nl_or_comment(next_token);
+
 	return vector_peek_no_increment(current_process->token_vec);
 }
 
 void parse_single_token_to_node() {
 	struct token* token = token_next();
 	struct node* node = NULL;
+
 	switch (token->type) {
 		case TOKEN_TYPE_NUMBER:
 			node = node_create(&(struct node){.type=NODE_TYPE_NUMBER, .llnum=token->llnum});
@@ -78,10 +83,12 @@ void parse_expressionable_for_op(struct history* history, const char* op) {
 void parser_node_shift_children_left(struct node* node) {
 	assert(node->type == NODE_TYPE_EXPRESSION);
 	assert(node->exp.right == NODE_TYPE_EXPRESSION);
+
 	const char* right_op = node->exp.right->exp.op;
 	struct node* new_exp_left_node = node->exp.left;
 	struct node* new_exp_right_node = node->exp.right->exp.left;
 	make_exp_node(new_exp_left_node, new_exp_right_node, node->exp.op);
+
 	// EX: 50*E(20+50) -> E(50*20)+50
 	struct node* new_left_operand = node_pop();
 	struct node* new_right_operand = node->exp.right->exp.right;
@@ -113,6 +120,36 @@ void parser_reorder_expression(struct node** node_out) {
 			parser_reorder_expression(&node->exp.right);
 		}
 	}
+}
+
+static int parser_get_precedence_for_operator(const char* op, struct expressionable_op_precedence_group** group_out) {
+	*group_out = NULL;
+	for (int i = 0; i < TOTAL_OPERADOR_GROUPS; i++) {
+		for (int j = 0; op_precedence[i].operators[j]; j++) {
+			const char* _op = op_precedence[i].operators[j];
+			if (S_EQ(op, _op)) {
+				*group_out = &op_precedence[i];
+				return i;
+			}
+		}
+	}
+	return -1;
+}
+
+static bool parser_left_op_has_priority(const char* op_left, const char* op_right) {
+	struct expressionable_op_precedence_group* group_left = NULL;
+	struct expressionable_op_precedence_group* group_right = NULL;
+
+	// Se os operadores forem os mesmos, retornar falso.
+	if (S_EQ(op_left, op_right)) return false;
+
+	int precedence_left = parser_get_precedence_for_operator(op_left, &group_left);
+	int precedence_right = parser_get_precedence_for_operator(op_right, &group_right);
+
+	// Essa funcao so trata de associatividade esquerda para direita
+	if (group_left->associativity == ASSOCIATIVITY_RIGHT_TO_LEFT) return false;
+
+	return precedence_left <= precedence_right;
 }
 
 void parse_exp_normal(struct history* history) {
@@ -152,7 +189,9 @@ int parse_exp(struct history* history) {
 
 int parse_expressionable_single(struct history* history) {
 	struct token* token = token_peek_next();
+
 	if (!token) return -1;
+
 	history->flags |= NODE_FLAG_INSIDE_EXPRESSION;
 	int res = -1;
 	switch (token->type){
@@ -164,8 +203,10 @@ int parse_expressionable_single(struct history* history) {
 			parse_exp(history);
 			res = 0;
 			break;
-		default: break;
+		default:
+			break;
 	}
+
 	return res;
 }
 
@@ -176,6 +217,7 @@ void parse_expressionable(struct history* history){
 int parse_next(){
 	struct token* token = token_peek_next();
 	if (!token) return -1;
+
 	int res = 0;
 	switch (token->type) {
 		case TOKEN_TYPE_NUMBER:
@@ -189,34 +231,17 @@ int parse_next(){
 	return 0;
 }
 
-static int parser_get_precedence_for_operator(const char* op, struct expressionable_op_precedence_group** group_out) {
-	*group_out = NULL;
-	for (int i = 0; i < TOTAL_OPERADOR_GROUPS; i++) {
-		for (int j = 0; op_precedence[i].operators[j]; j++) {
-			const char* _op = op_precedence[i].operators[j];
-			if (S_EQ(op, _op)) {
-				*group_out = &op_precedence[i];
-				return i;
-			}
-		}
-	}
-	return -1;
-}
+void print_node_tree(struct node* node, int level) {
+    
+    if (node != NULL) {
+        
+        for (int i=0; i < level; i++) printf("\t");
+        printf ("(NODE - LEVEL %d)\tOP %s\t %llu\n", level, node->exp.op != NULL ? node->exp.op : "N/A", node->llnum);
+        int next_level = level + 1;
+        print_node_tree(node->exp.left, next_level);
+        print_node_tree(node->exp.right, next_level);
+    }
 
-static bool parser_left_op_has_priority(const char* op_left, const char* op_right) {
-	struct expressionable_op_precedence_group* group_left = NULL;
-	struct expressionable_op_precedence_group* group_right = NULL;
-
-	// Se os operadores forem os mesmos, retornar falso.
-	if (S_EQ(op_left, op_right)) return false;
-
-	int precedence_left = parser_get_precedence_for_operator(op_left, &group_left);
-	int precedence_right = parser_get_precedence_for_operator(op_right, &group_right);
-
-	// Essa funcao so trata de associatividade esquerda para direita
-	if (group_left->associativity == ASSOCIATIVITY_RIGHT_TO_LEFT) return false;
-
-	return precedence_left <= precedence_right;
 }
 
 int parse(struct compile_process* process) { /*LAB3: Adicionar o prototipo no compiler.h */
@@ -225,8 +250,10 @@ int parse(struct compile_process* process) { /*LAB3: Adicionar o prototipo no co
 	parser_last_token = NULL;
 	struct node* node = NULL;
 	node_set_vector(process->node_vec, process->node_tree_vec);
+
 	vector_set_peek_pointer(process->token_vec, 0);
-	printf("parsing next\n");
+	printf("entering parsing loop\n");
+
 	while (parse_next() == 0) {
 		printf("parsed\n");
 		node = node_peek();
@@ -234,6 +261,9 @@ int parse(struct compile_process* process) { /*LAB3: Adicionar o prototipo no co
 		vector_push(process->node_tree_vec, &node);
 		printf("pushed to node tree\n");
 	}
+	
+	node = node_pop();
+	print_node_tree(node, 0);
+
 	return PARSE_ALL_OK;
 }
-
