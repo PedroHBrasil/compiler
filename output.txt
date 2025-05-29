@@ -1,0 +1,89 @@
+
+------INICIO------
+Compiladores - TURMA A - GRUPO 3
+
+#Input file: test1.c
+#Output file: (null)
+
+---Etapa 1: Lexer---
+
+TOKEN   NU: 123          PARENTESES: (null)
+TOKEN   OP: +
+TOKEN   NU: 456          PARENTESES: (null)
+TOKEN   OP: *
+TOKEN   NU: 789          PARENTESES: (null)
+TOKEN   NL
+
+---Etapa 2: Parsing---
+
+(NODE - LEVEL 0)        OP +     0
+        (NODE - LEVEL 1)        OP N/A   123
+        (NODE - LEVEL 1)        OP *     0
+                (NODE - LEVEL 2)        OP N/A   456
+                (NODE - LEVEL 2)        OP N/A   789
+
+Todos os arquivos foram compilados com sucesso!
+
+------FIM------
+
+------INICIO------
+Compiladores - TURMA A - GRUPO 3
+
+#Input file: test2.c
+#Output file: (null)
+
+---Etapa 1: Lexer---
+
+TOKEN   NU: 0    PARENTESES: (null)
+TOKEN   OP: +
+TOKEN   NU: 123          PARENTESES: (null)
+TOKEN   OP: +
+TOKEN   NU: 456          PARENTESES: (null)
+TOKEN   OP: *
+TOKEN   NU: 789          PARENTESES: (null)
+TOKEN   NL
+
+---Etapa 2: Parsing---
+
+(NODE - LEVEL 0)        OP +     0
+        (NODE - LEVEL 1)        OP N/A   0
+        (NODE - LEVEL 1)        OP +     0
+                (NODE - LEVEL 2)        OP N/A   123
+                (NODE - LEVEL 2)        OP *     0
+                        (NODE - LEVEL 3)        OP N/A   456
+                        (NODE - LEVEL 3)        OP N/A   789
+
+Todos os arquivos foram compilados com sucesso!
+
+------FIM------
+
+------INICIO------
+Compiladores - TURMA A - GRUPO 3
+
+#Input file: test3.c
+#Output file: (null)
+
+---Etapa 1: Lexer---
+
+TOKEN   NU: 5    PARENTESES: (null)
+TOKEN   OP: +
+TOKEN   NU: 7    PARENTESES: (null)
+TOKEN   OP: -
+TOKEN   NU: 6    PARENTESES: (null)
+TOKEN   OP: *
+TOKEN   NU: 5    PARENTESES: (null)
+TOKEN   NL
+
+---Etapa 2: Parsing---
+
+(NODE - LEVEL 0)        OP +     0
+        (NODE - LEVEL 1)        OP N/A   5
+        (NODE - LEVEL 1)        OP -     0
+                (NODE - LEVEL 2)        OP N/A   7
+                (NODE - LEVEL 2)        OP *     0
+                        (NODE - LEVEL 3)        OP N/A   6
+                        (NODE - LEVEL 3)        OP N/A   5
+
+Todos os arquivos foram compilados com sucesso!
+
+------FIM------

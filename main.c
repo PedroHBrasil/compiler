@@ -1,21 +1,36 @@
-
-
 #include <stdio.h>
-#include "helpers/vector.h" 
+#include "helpers/vector.h"
 #include "helpers/buffer.h"
 #include "compiler.h"
 
-int main() {
-	printf("Compiladores - TURMA A/B - GRUPO 3\n\n");
+int main(int argc, char const *argv[]) {
+    char *input_file = NULL;
+    char *output_file = NULL;
 
-	int res = compile_file("./test.c", "./outtest.c", 0);
-	if (res == COMPILER_FILE_COMPILED_OK) {
-		printf("Todos os arquivos foram compilados com sucesso!\n");
-	} else if (res == COMPILER_FAILED_WITH_ERRORS) {
-		printf("Erro de compilação");
-	} else {
-		printf("Erro desconhecido!\n");
-	}
+    printf("\n------INICIO------\n");
+    printf("Compiladores - TURMA A - GRUPO 3\n\n");
 
-	return 0;
+    if (argc > 1) {
+        input_file = (char *) argv[1];
+
+        if (argc > 2) 
+            output_file = (char *) argv[2];
+    }
+    
+    printf("#Input file: %s \n#Output file: %s \n\n", input_file, output_file);
+
+    int res = compile_file(input_file, output_file,0);
+    if (res == COMPILER_FILE_COMPILED_OK){
+        printf("Todos os arquivos foram compilados com sucesso!\n");
+    } else if (res == COMPILER_FAILED_WITH_ERRORS){
+        printf("Erro de compilacao!\n");
+    } else {
+        printf("Erro desconhecido!\n");
+    }
+
+    printf("\n------FIM------\n");
+
+    return 0;
 }
+
+
