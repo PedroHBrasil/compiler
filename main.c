@@ -16,7 +16,7 @@ int main(int argc, char const *argv[]) {
         if (argc > 2) 
             output_file = (char *) argv[2];
     }
-    
+
     printf("#Input file: %s \n#Output file: %s \n\n", input_file, output_file);
 
     int res = compile_file(input_file, output_file,0);
