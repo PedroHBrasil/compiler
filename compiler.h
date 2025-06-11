@@ -216,6 +216,27 @@ enum {
     PARSE_GENERAL_ERROR
 };
 
+
+struct datatype {
+    int flags;
+
+    // EX: long, int, float, etc.
+    int type;
+    const char* type_str;
+
+    // EX: long int, sendo int o secundário.
+    struct datatype* datatype_secondary;
+
+    // Tamanho do datatype. EX: long tem 8 bytes.
+    size_t size;
+
+    // Quantidades de ponteiros alinhados. Ex: int** a, pointer_depth == 2.
+    int pointer_depth;
+    union { struct node* struct_node;
+        struct node* union_node;
+    };
+};
+
 // Cada nó uma parte do inputfile. 
 struct node {
     int type;
@@ -247,6 +268,16 @@ struct node {
             const char* op;
         } exp;
     };
+
+    struct var {  // LAB 5
+        struct datatype type;
+        const char* name;
+        struct node* val;
+    } var;
+
+    struct varlist {// Lista de variaveis struct node*
+        struct vector* list;
+    } var_list;
 };
 
 /* END - LAB 3 ---------------------------------*/
@@ -274,6 +305,7 @@ int parse(struct compile_process* process);
 /* FUNCOES DO ARQUIVO TOKEN.C */
 bool token_is_keyword(struct token* token, const char* value);
 bool token_is_symbol(struct token* token, const char value);
+bool token_is_operator(struct token* token, const char* val);
 bool discart_token(struct token* token);
 
 /* FUNCOES DO ARQUIVO NODE.C */
@@ -331,26 +363,6 @@ enum { DATATYPE_VOID,
 enum { DATATYPE_EXPECT_PRIMITIVE,
     DATATYPE_EXPECT_UNION,
     DATATYPE_EXPECT_STRUCT
-};
-
-struct datatype {
-    int flags;
-
-    // EX: long, int, float, etc.
-    int type;
-    const char* type_str;
-
-    // EX: long int, sendo int o secundário.
-    struct datatype* datatype_secondary;
-
-    // Tamanho do datatype. EX: long tem 8 bytes.
-    size_t size;
-
-    // Quantidades de ponteiros alinhados. Ex: int** a, pointer_depth == 2.
-    int pointer_depth;
-    union { struct node* struct_node;
-        struct node* union_node;
-    };
 };
 
 enum {

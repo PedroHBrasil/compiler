@@ -17,3 +17,11 @@ bool discart_token(struct token* token) {
 }
 
 // LAB 4 ends here
+
+// LAB 5 starts here
+
+bool token_is_operator(struct token* token, const char* val) {
+    return token && token->type == TOKEN_TYPE_OPERATOR && S_EQ(token->sval, val);
+}
+
+// LAB 5 ends here
