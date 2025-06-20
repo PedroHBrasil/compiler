@@ -506,6 +506,13 @@ static bool token_next_is_operator(const char* op) { // LAB5 - Parte 2
     return token_is_operator(token, op);
 }
 
+static void expected_sym(char c) {
+    struct token *next_token = token_next();
+    if (!next_token || next_token != TOKEN_TYPE_SYMBOL || next_token->cval != c) {
+        compiler_error(current_process, "ERRO!");
+    }
+}
+
 void parse_variable(struct datatype* dtype, struct token* name_token, struct history* history) { // LAB5 - Parte 2
     // TODO: Lidar a com a declaracao de vetores. Ex: int a[10].
     struct node* value_node = NULL;
@@ -514,10 +521,52 @@ void parse_variable(struct datatype* dtype, struct token* name_token, struct his
         token_next();
         parse_expressionable_root(history);
         value_node = node_pop();
+        printf("\n - value_node->var.name: %s", value_node->var.name);
     }
     make_variable_node_and_register(history, dtype, name_token, value_node);
-    // INPLEMENTAR O CASO DE MÚLTIPLAS VARIÁVEIS DECLARADAS NA MESMA LINHA: EX: int a, b, c, d;
 
+    if (token_next_is_operator(";")) {
+        return;
+    }
+
+    struct node var_list_node = {
+        .type = NODE_TYPE_VARIABLE_LIST,
+        .var_list.list = vector_create(sizeof(struct node*))
+    };
+
+    struct node* var_node = node_pop();
+    vector_push(var_list_node.var_list.list, &var_node);
+    printf("\n - var_node->type: %i", var_node->type);
+    printf("\n - var_node->var.name: %s", var_node->var.name);
+
+    while (token_next_is_operator(",")) {
+        token_next();
+        struct token* next_name_token = token_next();
+
+        value_node = NULL;
+        make_variable_node(dtype, next_name_token, value_node);
+
+        var_node = node_pop();
+        vector_push(var_list_node.var_list.list, &var_node);
+        printf("\n - var_node->type: %i", var_node->type);
+        printf("\n - var_node->var.name: %s", var_node->var.name);
+    }
+
+    struct node* created_node = node_create(&var_list_node);
+
+    for (int i = 0; i < vector_count(var_list_node.var_list.list); i++) {
+        struct node** var_ptr = vector_at(var_list_node.var_list.list, i);
+        if (!var_ptr || !*var_ptr) continue;
+
+        struct token temp_token = {
+            .type = TOKEN_TYPE_IDENTIFIER,
+            .sval = (*var_ptr)->var.name,
+            .pos = (*var_ptr)->pos
+        };
+        make_variable_node_and_register(history, dtype, &temp_token, (*var_ptr)->var.val);
+    }
+
+    node_push(created_node);
 }
 
 void parse_variable_function_or_struct_union(struct history* history) { // LAB5
@@ -568,16 +617,13 @@ int parse_next(){
 }
 
 void print_node_tree(struct node* node, int level) {
-    
     if (node != NULL) {
-        
         for (int i=0; i < level; i++) printf("\t");
-        printf ("(NODE - LEVEL %d)\tOP %s\t %llu\n", level, node->exp.op != NULL ? node->exp.op : "N/A", node->llnum);
+        printf ("\n(NODE - LEVEL %d)\tOP %s\t %llu\n", level, node->exp.op != NULL ? node->exp.op : "N/A", node->llnum);
         int next_level = level + 1;
         print_node_tree(node->exp.left, next_level);
         print_node_tree(node->exp.right, next_level);
     }
-
 }
 
 int parse(struct compile_process* process) { /*LAB3: Adicionar o prototipo no compiler.h */

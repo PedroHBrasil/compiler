@@ -291,8 +291,6 @@ bool token_is_keyword(struct token* token, const char* value);
 /* Build token for the input string*/
 struct lex_process* tokens_build_for_string(struct compile_process* compiler, const char* str);
 
-int parse(struct compile_process* process);             /*LAB3: Adicionar*/
-
 /* BEGIN - LAB 4 ---------------------------------*/
 
 enum {
